@@ -47,7 +47,7 @@ export type $CDXQueryOptions = {
 
   // RESPONSE ENCODING
   gzip?: boolean; // gzip (default true)
-  json?: boolean // output (default cdx) // JSON LAGS SO MUCH
+  json?: boolean; // output (default cdx) // JSON LAGS SO MUCH
 
   // DATE RANGE
   from?: string; // from (default none): <yyyyMMddmmhhss>[1:14]
@@ -55,8 +55,8 @@ export type $CDXQueryOptions = {
 
   // FIELD OPTIONS
   fl?: $CDXField[]; // fl (default all in $CDXField order): <field>,<field>,...
-  filters?: $CDXFilter[]; // filter & filter & ... (default none): [!]<field>:<java-regex>
-  collapse?: $CDXCollapse[]; // collapse & collapse & ... (default timestamp:10): <field>:<ltr-depth>
+  filters?: string[]; /* $CDXFilter[]; */ // filter & filter & ... (default none): [!]<field>:<java-regex>
+  collapse?: string[]; /* $CDXCollapse[]; */ // collapse & collapse & ... (default timestamp:10): <field>:<ltr-depth>
 
   // LIMIT
   limit?: number; // limit (default none): -<i> for last <i> results, +<i> for first <i> results
