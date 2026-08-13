@@ -1,13 +1,14 @@
-import type { $CDXCollapse, $CDXQueryOptions } from "./types";
-import { Prompter } from "./prompter";
-import { GetAllCDXPages, GetCDXPageCount } from "./wayback.cdx_api";
+import type { $CDXCollapse, $CDXField, $CDXQueryOptions } from "./types";
+import { AsyncConfirm, Prompter } from "./prompter";
+
 import {
   ValidateTimestamp,
   ValidateCollapse,
   ValidateFieldSelection,
+  ValidateTimestampRange,
 } from "./sanitization";
 
-async function Prompt(): Promise<$CDXQueryOptions | undefined> {
+export async function Prompt() {
   const questions = [
     "URL",
     "From Timestamp",
@@ -49,7 +50,7 @@ async function Prompt(): Promise<$CDXQueryOptions | undefined> {
   const url = URL.parse(url_str);
 
   if (!url) {
-    console.log("* [PromptLoop] Failed: URL Invalid");
+    console.log("* [Prompt] Failed: URL invalid.");
     return;
   }
 
@@ -66,18 +67,8 @@ async function Prompt(): Promise<$CDXQueryOptions | undefined> {
     : "*";
 
   // move to validate range
-  if (!timestamp_from) {
-    console.log("* [PromptLoop] Failed: From Timestamp Invalid");
-    return;
-  } else if (!timestamp_to) {
-    console.log("* [PromptLoop] Failed: To Timestamp Invalid");
-    return;
-  } else if (parseInt(timestamp_from) > parseInt(timestamp_to)) {
-    console.log(
-      "* [PromptLoop] Failed: From Timestamp Greater Than To Timestamp",
-    );
-    return;
-  }
+
+  if (!ValidateTimestampRange(timestamp_from_str, timestamp_to_str)) return;
 
   if (timestamp_from !== "*") {
     cdx_query_options.from = timestamp_from;
@@ -87,8 +78,21 @@ async function Prompt(): Promise<$CDXQueryOptions | undefined> {
     cdx_query_options.to = timestamp_to;
   }
 
-  const collapse_arr = collapse_csv ? ValidateCollapse(collapse_csv) : [];
-  const field_arr = field_csv ? ValidateFieldSelection(field_csv) : [];
+  const collapse_arr = ValidateCollapse(collapse_csv);
+
+  if (collapse_arr && collapse_arr.length > 0) {
+    cdx_query_options.collapse = collapse_arr;
+  }
+
+  const field_arr = ValidateFieldSelection(field_csv);
+
+  if (field_arr && field_arr.length > 0) {
+    cdx_query_options.fl = field_arr as $CDXField[];
+  }
+
+  const confirm = await AsyncConfirm("form values");
+
+  if (!confirm) return;
 
   return cdx_query_options;
 }
