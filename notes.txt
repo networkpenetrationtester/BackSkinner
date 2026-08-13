@@ -1,0 +1,5 @@
+CDX API can be used to return every capture of a singular URL over time + its exact timecode + its status
+https://web.archive.org/cdx/search/cdx?url=<url>&showNumPages=true -> page count
+https://web.archive.org/cdx/search/cdx?url=<url>&page=<index>&output=<format>&from=<from>&to=<to>&fl=<columns>&gzip=<bool>
+
+http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html
