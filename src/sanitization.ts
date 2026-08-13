@@ -1,8 +1,8 @@
-import { FIELD_NAMES, SENSIBLE_LTR_DEPTH_FIELD_NAMES } from "./wayback";
+import { CDX_FIELD_NAMES, CDX_LTR_DEPTH_FIELD_NAMES } from "./constants";
 
 export function ValidateTimestamp(timestamp: string) {
   if (!timestamp || timestamp.length === 0) {
-    console.error("* [ValidateTimestamp] Failure: No timestamp specified");
+    console.error("* [ValidateTimestamp] Failure: No timestamp specified.");
     return;
   }
 
@@ -10,14 +10,14 @@ export function ValidateTimestamp(timestamp: string) {
 
   if (!is_numerical) {
     console.error(
-      "* [ValidateTimestamp] Failure: Timestamp contains non-number characters",
+      "* [ValidateTimestamp] Failure: Timestamp contains non-number characters.",
     );
     return;
   }
 
   if (timestamp.length < 1 || timestamp.length > 14) {
     console.error(
-      "* [ValidateTimestamp] Failure: Timestamp outside valid length [1-14]",
+      "* [ValidateTimestamp] Failure: Timestamp length outside valid range [1-14].",
     );
     return;
   }
@@ -46,7 +46,7 @@ export function ValidateTimestamp(timestamp: string) {
   );
 
   if (parsed_timestamp.toString() === "Invalid Date") {
-    console.error("* [ValidateTimestamp] Failure: Timestamp invalid");
+    console.error("* [ValidateTimestamp] Failure: Timestamp invalid.");
     return;
   }
 
@@ -78,7 +78,7 @@ export function ValidateTimestamp(timestamp: string) {
         "* [ValidateTimestamp]",
         "Failure:",
         timestamp_piece_name,
-        "mismatch",
+        "mismatch.",
       );
       return;
     }
@@ -92,80 +92,89 @@ export function ValidateTimestamp(timestamp: string) {
   ].join("");
 }
 
+export function ValidateTimestampRange(
+  timestamp_from: string,
+  timestamp_to: string,
+) {
+  if (!timestamp_from) {
+    console.log("* [PromptLoop] Failed: From Timestamp Invalid");
+  } else if (!timestamp_to) {
+    console.log("* [PromptLoop] Failed: To Timestamp Invalid");
+  } else if (parseInt(timestamp_from) > parseInt(timestamp_to)) {
+    console.log(
+      "* [PromptLoop] Failed: From Timestamp Greater Than To Timestamp",
+    );
+  } else {
+    return true;
+  }
+
+  return false;
+}
+
 export function ValidateCollapse(collapser_csv: string) {
   const collapse_arr = collapser_csv.split(",");
 
   if (collapse_arr.length === 1 && !collapse_arr[0]) {
-    console.log("* [ValidateCollapse] Failure: No collapse specified");
+    console.log("* [ValidateCollapse] Failure: No collapse specified.");
     return;
   }
 
   const consumed_fields = new Array<string>();
 
-  const sanitized_collapse_arr = collapse_arr
-    .map((collapse) => {
-      const [field_name, ltr_depth_str] = collapse.split(":");
-      const ltr_depth = parseInt(ltr_depth_str);
+  return collapse_arr.filter((collapse) => {
+    const [field_name, ltr_depth_str] = collapse.split(":");
+    const ltr_depth = parseInt(ltr_depth_str);
 
-      if (!FIELD_NAMES.includes(field_name)) {
-        console.log(`* [ValidateCollapse] Skipping ${collapse}: Field invalid`);
-        return;
-      } else if (
-        ltr_depth_str &&
-        !SENSIBLE_LTR_DEPTH_FIELD_NAMES.includes(field_name)
-      ) {
-        console.log(
-          `* [ValidateCollapse] Skipping ${collapse}: Nonsensical match depth usage`,
-        );
-        return;
-      } else if (ltr_depth_str && isNaN(ltr_depth)) {
-        console.log(
-          `* [ValidateCollapse] Omitting match depth from ${collapse}: Match depth invalid`,
-        );
-        return field_name;
-      } else if (consumed_fields.includes(field_name)) {
-        console.log(
-          `* [ValidateCollapse] Skipping ${collapse}: Field already specified`,
-        );
-        return;
-      } else {
-        consumed_fields.push(field_name);
-        return collapse;
-      }
-    })
-    .filter((collapse) => collapse !== undefined && collapse);
+    if (!CDX_FIELD_NAMES.includes(field_name)) {
+      console.log(`* [ValidateCollapse] Skipping "${collapse}": Field invalid.`);
+    } else if (
+      ltr_depth_str &&
+      !CDX_LTR_DEPTH_FIELD_NAMES.includes(field_name)
+    ) {
+      console.log(
+        `* [ValidateCollapse] Skipping "${collapse}": Nonsensical match depth usage.`,
+      );
+    } else if (ltr_depth_str && isNaN(ltr_depth)) {
+      console.log(
+        `* [ValidateCollapse] Omitting match depth from "${collapse}": Match depth invalid.`,
+      );
+    } else if (consumed_fields.includes(field_name)) {
+      console.log(
+        `* [ValidateCollapse] Skipping "${collapse}": Field already specified.`,
+      );
+    } else {
+      consumed_fields.push(field_name);
+      return true;
+    }
 
-  return sanitized_collapse_arr;
+    return false;
+  });
 }
 
 export function ValidateFieldSelection(field_csv: string) {
   const field_arr = field_csv.split(",");
 
   if (field_arr.length === 1 && !field_arr[0]) {
-    console.log("* [ValidateFieldSelection] Failure: No fields specified");
+    console.log("* [ValidateFieldSelection] Failure: No fields specified.");
     return;
   }
 
   const consumed_fields = new Array<string>();
 
-  const sanitized_field_arr = field_arr
-    .map((field_name) => {
-      if (!FIELD_NAMES.includes(field_name)) {
-        console.log(
-          `* [ValidateFieldSelection] Skipping ${field_name}: Field invalid`,
-        );
-        return;
-      } else if (consumed_fields.includes(field_name)) {
-        console.log(
-          `* [ValidateFieldSelection] Skipping ${field_name}: Field already specified`,
-        );
-        return;
-      } else {
-        consumed_fields.push(field_name);
-        return field_name;
-      }
-    })
-    .filter((collapse) => collapse !== undefined && collapse);
+  return field_arr.filter((field_name) => {
+    if (!CDX_FIELD_NAMES.includes(field_name)) {
+      console.log(
+        `* [ValidateFieldSelection] Skipping "${field_name}": Field invalid.`,
+      );
+    } else if (consumed_fields.includes(field_name)) {
+      console.log(
+        `* [ValidateFieldSelection] Skipping "${field_name}": Field already specified.`,
+      );
+    } else {
+      consumed_fields.push(field_name);
+      return true;
+    }
 
-  return sanitized_field_arr;
+    return false;
+  });
 }
