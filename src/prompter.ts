@@ -37,7 +37,7 @@ export async function AsyncConfirm(subject: string) {
 }
 
 export async function Prompter(...prompt_texts: string[]) {
-  const prompt_answers = [];
+  let prompt_answers = [];
 
   for (let i = 0; i < prompt_texts.length; i++) {
     const prompt_text = prompt_texts[i];
@@ -49,6 +49,7 @@ export async function Prompter(...prompt_texts: string[]) {
       }
       case "/clear": {
         console.clear();
+        prompt_answers = [];
         i = -1;
         break;
       }
