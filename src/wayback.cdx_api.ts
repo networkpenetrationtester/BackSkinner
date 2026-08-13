@@ -1,6 +1,6 @@
 import { LoggedFetchWrapper } from "./fetch_wrapper";
 import { $CDXQueryOptions } from "./types";
-import { WAYBACK_FETCH_OPTIONS } from "./wayback";
+import { WAYBACK_FETCH_OPTIONS } from "./constants";
 
 export async function GetCDXPage(args: $CDXQueryOptions) {
   const request_url =
