@@ -1,4 +1,4 @@
-import type { $CDXCollapse, $CDXField, $CDXQueryOptions } from "./types";
+import type { $CDXField, $CDXQueryOptions } from "./types";
 import { AsyncConfirm, Prompter } from "./prompter";
 
 import {
@@ -7,45 +7,32 @@ import {
   ValidateFieldSelection,
   ValidateTimestampRange,
 } from "./sanitization";
+import { Interface } from "node:readline";
 
-export async function Prompt() {
-  const questions = [
+export async function Prompt(io: Interface) {
+  console.log("* [Prompt] Form: Common values");
+
+  const common_prompt = [
     "URL",
-    "From Timestamp",
-    "To Timestamp",
-    "Collapse CSV",
-    "Field Selection CSV",
-    // "URL <url>",
-    // "CDX Page Size <int> [50]",
-    // "Collapse Field <field>:<ltr_depth>, ... [digest]",
-    // "Search Flags",
-    // "Year Range yyyy-yyyy|* [*]",
-    // "Unmodified y|n [y]",
-    // "Storage db|dir [dir]",
-    // "Keep Failed y|n [n]",
-    // "Retry Failed y|n [y]",
-    // "Log File y|n [n]",
+    "Match Type <exact | prefix | host | domain>",
+    "From <timestamp>",
+    "To <timetamp>",
+    "Fields <field> CSV",
+    "Filters [!]<field>:<java-regex> CSV", // this one's gonna fucking suck, gotta do something like || to separate them :sob:
+    "Collapses <field>:<ltr-depth> CSV",
   ];
 
-  const answers = await Prompter(...questions);
+  const common_answers = await Prompter(io, ...common_prompt);
 
   const [
     url_str,
-    timestamp_from_str,
-    timestamp_to_str,
-    collapse_csv,
+    match_type,
+    from_timestamp_str,
+    to_timestamp_str,
     field_csv,
-    // url_str,
-    // page_size_str,
-    // collapse_csv,
-    // search_flags,
-    // year_range,
-    // unmodified,
-    // storage,
-    // keep_failed,
-    // retry_failed,
-    // log_file,
-  ] = answers;
+    filter_csv,
+    collapse_csv,
+  ] = common_answers;
 
   const url = URL.parse(url_str);
 
@@ -58,41 +45,45 @@ export async function Prompt() {
     url,
   };
 
-  const timestamp_from = timestamp_from_str
-    ? ValidateTimestamp(timestamp_from_str)
-    : "*";
+  const from_timestamp =
+    from_timestamp_str && ValidateTimestamp(from_timestamp_str);
 
-  const timestamp_to = timestamp_to_str
-    ? ValidateTimestamp(timestamp_to_str)
-    : "*";
+  const to_timestamp = to_timestamp_str && ValidateTimestamp(to_timestamp_str);
 
-  // move to validate range
+  if (
+    from_timestamp &&
+    to_timestamp &&
+    !ValidateTimestampRange(from_timestamp_str, to_timestamp_str)
+  )
+    return;
 
-  if (!ValidateTimestampRange(timestamp_from_str, timestamp_to_str)) return;
-
-  if (timestamp_from !== "*") {
-    cdx_query_options.from = timestamp_from;
+  if (from_timestamp) {
+    cdx_query_options.from = from_timestamp;
   }
 
-  if (timestamp_to !== "*") {
-    cdx_query_options.to = timestamp_to;
+  if (to_timestamp) {
+    cdx_query_options.to = to_timestamp;
   }
 
-  const collapse_arr = ValidateCollapse(collapse_csv);
+  const collapse_arr = collapse_csv && ValidateCollapse(collapse_csv);
 
   if (collapse_arr && collapse_arr.length > 0) {
     cdx_query_options.collapse = collapse_arr;
   }
 
-  const field_arr = ValidateFieldSelection(field_csv);
+  const field_arr = field_csv && ValidateFieldSelection(field_csv);
 
   if (field_arr && field_arr.length > 0) {
     cdx_query_options.fl = field_arr as $CDXField[];
   }
 
-  const confirm = await AsyncConfirm("form values");
+  const confirm = await AsyncConfirm(io, "Confirm common prompt values");
 
   if (!confirm) return;
+
+  // console.log("* [Prompt] Form: Limit values");
+  // console.log("* [Prompt] Form: Sequential querying values");
+  // console.log("* [Prompt] Form: Parallel querying values");
 
   return cdx_query_options;
 }
