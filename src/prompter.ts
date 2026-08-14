@@ -1,9 +1,6 @@
-import { stdin, stdout } from "node:process";
-import { createInterface } from "node:readline";
+import { Interface } from "node:readline";
 
-export const io = createInterface(stdin, stdout);
-
-export async function AsyncPrompt(prompt: string) {
+export async function AsyncPrompt(io: Interface, prompt: string) {
   io.setPrompt(prompt);
   io.prompt();
 
@@ -17,11 +14,11 @@ export async function AsyncPrompt(prompt: string) {
   });
 }
 
-export async function AsyncConfirm(subject: string) {
+export async function AsyncConfirm(io: Interface, subject: string) {
   for (
     let confirm = "";
     ;
-    confirm = await AsyncPrompt(`* [AsyncConfirm] Confirm ${subject}? [y/n]: `)
+    confirm = await AsyncPrompt(io, `* [AsyncConfirm] ${subject}? [y/n]: `)
   ) {
     switch (confirm) {
       case "y": {
@@ -36,12 +33,12 @@ export async function AsyncConfirm(subject: string) {
   }
 }
 
-export async function Prompter(...prompt_texts: string[]) {
+export async function Prompter(io: Interface, ...prompt_texts: string[]) {
   let prompt_answers = [];
 
   for (let i = 0; i < prompt_texts.length; i++) {
     const prompt_text = prompt_texts[i];
-    const answer = await AsyncPrompt(prompt_text + ": ");
+    const answer = await AsyncPrompt(io, prompt_text + ": ");
 
     switch (answer) {
       case "/exit": {
@@ -54,7 +51,7 @@ export async function Prompter(...prompt_texts: string[]) {
         break;
       }
       case "/def": {
-        console.log("* [Prompter] Accepting Default Values...");
+        console.log("* [Prompter] Accepting default values...");
         i = prompt_texts.length;
         break;
       }
