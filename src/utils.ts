@@ -1,5 +1,5 @@
 export async function Delay(ms: number) {
-  console.log(`Waiting: ${ms / 1000}s...`);
+  console.log(`* [Delay] Waiting ${ms / 1000}s...`);
   return await new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
