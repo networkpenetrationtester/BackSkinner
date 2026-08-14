@@ -97,25 +97,28 @@ export function ValidateTimestampRange(
   timestamp_to: string,
 ) {
   if (!timestamp_from) {
-    console.log("* [PromptLoop] Failed: From Timestamp Invalid");
-  } else if (!timestamp_to) {
-    console.log("* [PromptLoop] Failed: To Timestamp Invalid");
-  } else if (parseInt(timestamp_from) > parseInt(timestamp_to)) {
-    console.log(
-      "* [PromptLoop] Failed: From Timestamp Greater Than To Timestamp",
-    );
-  } else {
-    return true;
+    console.log("* [ValidateTimestampRange] Warning: From timestamp wildcard.");
   }
 
-  return false;
+  if (!timestamp_to) {
+    console.log("* [ValidateTimestampRange] Warning: To timestamp wildcard.");
+  }
+
+  if (parseInt(timestamp_from) > parseInt(timestamp_to)) {
+    console.log(
+      "* [ValidateTimestampRange] Failed: From timestamp greater than to timestamp.",
+    );
+    return false;
+  }
+
+  return true;
 }
 
 export function ValidateCollapse(collapser_csv: string) {
   const collapse_arr = collapser_csv.split(",");
 
   if (collapse_arr.length === 1 && !collapse_arr[0]) {
-    console.log("* [ValidateCollapse] Failure: No collapse specified.");
+    console.log("* [ValidateCollapse] Warning: No collapse specified.");
     return;
   }
 
@@ -126,7 +129,9 @@ export function ValidateCollapse(collapser_csv: string) {
     const ltr_depth = parseInt(ltr_depth_str);
 
     if (!CDX_FIELD_NAMES.includes(field_name)) {
-      console.log(`* [ValidateCollapse] Skipping "${collapse}": Field invalid.`);
+      console.log(
+        `* [ValidateCollapse] Skipping "${collapse}": Field invalid.`,
+      );
     } else if (
       ltr_depth_str &&
       !CDX_LTR_DEPTH_FIELD_NAMES.includes(field_name)
@@ -155,7 +160,7 @@ export function ValidateFieldSelection(field_csv: string) {
   const field_arr = field_csv.split(",");
 
   if (field_arr.length === 1 && !field_arr[0]) {
-    console.log("* [ValidateFieldSelection] Failure: No fields specified.");
+    console.log("* [ValidateFieldSelection] Warning: No fields specified.");
     return;
   }
 
