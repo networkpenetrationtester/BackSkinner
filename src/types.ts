@@ -29,25 +29,21 @@ export type $CDXField =
 
 export type $CDXMatchType = "exact" | "prefix" | "host" | "domain"; // set implicitly by *.domain.com or domain.com/*
 
-export type $CDXFilter = {
-  invert: boolean;
-  field: $CDXField;
-  java_regex: string;
-};
+// export type $CDXFilter = {
+//   invert: boolean;
+//   field: $CDXField;
+//   java_regex: string;
+// };
 
-export type $CDXCollapse = {
-  field: $CDXField;
-  ltr_depth?: number;
-};
+// export type $CDXCollapse = {
+//   field: $CDXField;
+//   ltr_depth?: number;
+// };
 
 export type $CDXQueryOptions = {
   // URL OPTIONS
   url: URL; // url
   match_type?: $CDXMatchType; // matchType (default exact)
-
-  // RESPONSE ENCODING
-  gzip?: boolean; // gzip (default true)
-  json?: boolean; // output (default cdx) // JSON LAGS SO MUCH
 
   // DATE RANGE
   from?: string; // from (default none): <yyyyMMddmmhhss>[1:14]
@@ -57,6 +53,10 @@ export type $CDXQueryOptions = {
   fl?: $CDXField[]; // fl (default all in $CDXField order): <field>,<field>,...
   filters?: string[]; /* $CDXFilter[]; */ // filter & filter & ... (default none): [!]<field>:<java-regex>
   collapse?: string[]; /* $CDXCollapse[]; */ // collapse & collapse & ... (default timestamp:10): <field>:<ltr-depth>
+
+  // RESPONSE ENCODING
+  gzip?: boolean; // gzip (default true)
+  json?: boolean; // output (default cdx) // JSON LAGS SO MUCH
 
   // LIMIT
   limit?: number; // limit (default none): -<i> for last <i> results, +<i> for first <i> results
